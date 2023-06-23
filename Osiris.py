@@ -2,6 +2,7 @@ import requests
 from google.cloud import storage
 from time import sleep
 import os
+import platform
 
 # Lista de extensiones de archivo permitidas
 allowed_extensions = ['.png', '.jpg', '.mp4']
@@ -16,9 +17,13 @@ def get_hostnames():
     hostname_data = hostname_response.json()
 
     hostnames = list(set(hostname_data.values()))
-    print("Nombres de host:")
+    print("""
+              HostName""")
     for hostname in hostnames:
-        print(hostname)
+        print(f'''
+              ----------
+              {hostname}
+              ---------- ''')
 
 # Obtener y mostrar todos los datos de la base de datos de IPs
 
@@ -28,9 +33,24 @@ def get_all_ips():
     ip_response = requests.get(ip_url)
     ip_data = ip_response.json()
 
-    print("\nDatos de IPs:")
-    for data in ip_data.values():
-        print(data)
+    print("""\n
+     ============
+    |Ip Capturin|
+    ============\n""")
+    with open('ip_data.txt', 'w') as file:
+        for data in ip_data.values():
+            if isinstance(data, list):
+                formatted_data = ','.join(data)
+                formatted_data = formatted_data.replace(',', '\n=>  ')
+            else:
+                formatted_data = data
+            file.write(str(formatted_data) + '\n')
+
+    # Leer y mostrar los datos del archivo de texto según el sistema operativo
+    if platform.system() == 'Windows':
+        os.system("type ip_data.txt | findstr /v /c:\",")
+    else:
+        os.system("cat ip_data.txt | grep -v ','")
 
 # Obtener nombres de archivos y mostrarlos sin repetir
 
@@ -46,14 +66,17 @@ def get_file_names():
         blob.name.endswith(ext) for ext in allowed_extensions)]
     file_names = list(set(file_names))
 
-    print("\nArchivos:")
+    print("""\n
+     ==============
+    |Data Extract:|
+    ==============\n""")
     for file_name in file_names:
-        print(file_name)
+        print('=> ' + file_name)
         download_path = f'imgdata/{file_name}'
         os.makedirs(os.path.dirname(download_path), exist_ok=True)
         blob = bucket.blob(file_name)
         blob.download_to_filename(download_path)
-        print(f"Archivo descargado: {download_path}")
+        print(f"EXTRACT Complete...")
 
 
 # Bucle principal para obtener datos en tiempo real
