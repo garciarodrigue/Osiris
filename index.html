@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imágenes desde Firebase</title>
+    <title>Datos desde Firebase</title>
+    <!-- Agrega los scripts de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js"></script>
 </head>
 <body>
-    <h1>Imágenes desde Firebase</h1>
-    <div id="image-container">
-        <!-- Las imágenes serán agregadas aquí -->
+    <h1>Datos desde Firebase</h1>
+    <div id="data-container">
+        <!-- Los datos serán mostrados aquí -->
     </div>
 
-    <!-- Scripts de Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-database.js"></script>
-
-    <!-- Configuración y código de Firebase -->
     <script>
-        // Configuración de Firebase
+        // Configura tu SDK de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAQc33cbN9pfbT-JJ1ozeIB6IUgKte2N4k",
             authDomain: "pictuface-f9763.firebaseapp.com",
@@ -29,28 +27,24 @@
             measurementId: "G-TQ2VS4ZXGM"
         };
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // Obtener una referencia a la base de datos
+        // Inicializa Firebase
+        const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Referencia a la ubicación donde se almacenan las imágenes en la base de datos
-        const imagenesRef = database.ref('gs://pictuface-f9763.appspot.com');
+        // Referencia a la ubicación donde se encuentran tus datos en la base de datos
+        const datosRef = database.ref('ruta/a/tus/datos');
 
-        // Obtener los datos de las imágenes y mostrarlas
-        imagenesRef.once('value').then(function(snapshot) {
-            snapshot.forEach(function(childSnapshot) {
-                // Obtener la URL de la imagen de cada snapshot
-                const imageUrl = childSnapshot.val().url;
+        // Obtén los datos de la base de datos
+        datosRef.once('value').then(function(snapshot) {
+            // Obtén los datos del snapshot
+            var datos = snapshot.val();
 
-                // Crear un elemento de imagen y establecer su atributo src
-                const img = document.createElement('img');
-                img.src = imageUrl;
-
-                // Agregar la imagen al contenedor de imágenes
-                document.getElementById('image-container').appendChild(img);
-            });
+            // Mostrar los datos en el contenedor
+            var dataContainer = document.getElementById('data-container');
+            dataContainer.innerText = JSON.stringify(datos, null, 2);
+        }).catch(function(error) {
+            // Manejar cualquier error que ocurra al obtener los datos
+            console.error('Error al obtener los datos:', error);
         });
     </script>
 </body>
