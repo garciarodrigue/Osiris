@@ -32,7 +32,7 @@
         const database = firebase.database();
 
         // Referencia a la ubicación donde se encuentran tus datos en la base de datos
-        const datosRef = database.ref('ruta/a/tus/datos');
+        const datosRef = database.ref('gs://pictuface-f9763.appspot.com/IMG_20231227_005531302.jpg');
 
         // Obtén los datos de la base de datos
         datosRef.once('value').then(function(snapshot) {
